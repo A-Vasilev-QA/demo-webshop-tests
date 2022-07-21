@@ -1,17 +1,15 @@
 plugins {
     id 'java-library'
-    id 'ru.vyarus.quality' version '4.8.0'
     id 'io.qameta.allure' version '2.9.6'
 }
-
-group 'org.example'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
-def allureVersion = "2.18.1"
+def allureVersion = "2.18.1",
+    selenideVersion = "6.6.3",
+    junitVersion = "5.8.2"
 
 allure {
     report {
@@ -27,18 +25,44 @@ allure {
     }
 }
 
-
 dependencies {
     testImplementation(
-            "com.codeborne:selenide:6.6.3",
+            "org.aspectj:aspectjweaver:1.9.9.1",
+            "com.codeborne:selenide:$selenideVersion",
             "io.qameta.allure:allure-selenide:$allureVersion",
             "io.rest-assured:rest-assured:5.1.1",
             "io.qameta.allure:allure-rest-assured:$allureVersion",
-            "org.junit.jupiter:junit-jupiter:5.8.2",
-            "org.slf4j:slf4j-simple:1.7.36"
-    )
+            "org.aeonbits.owner:owner:1.0.12",
+            "org.assertj:assertj-core:3.23.1",
+            "org.slf4j:slf4j-simple:1.7.36",
+            "org.junit.jupiter:junit-jupiter:$junitVersion")
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 tasks.withType(Test) {
+    systemProperties(System.getProperties())
     useJUnitPlatform()
+
+    if (System.getProperty("threads") != null) {
+        systemProperties += [
+                'junit.jupiter.execution.parallel.enabled'                 : true,
+                'junit.jupiter.execution.parallel.mode.default'            : 'concurrent',
+                'junit.jupiter.execution.parallel.mode.classes.default'    : 'concurrent',
+                'junit.jupiter.execution.parallel.qa.avasilev.config.strategy'         : 'fixed',
+                'junit.jupiter.execution.parallel.qa.avasilev.config.fixed.parallelism': System.getProperty("threads").toInteger()
+        ]
+    }
+
+    testLogging {
+        lifecycle {
+//            events "started", "failed"
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
 }
