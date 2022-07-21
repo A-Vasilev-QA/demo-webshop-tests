@@ -32,7 +32,7 @@ dependencies {
     testImplementation(
             "com.codeborne:selenide:6.6.3",
             "io.qameta.allure:allure-selenide:$allureVersion",
-            "io.rest-assured:rest-assured:5.1.0",
+            "io.rest-assured:rest-assured:5.1.1",
             "io.qameta.allure:allure-rest-assured:$allureVersion",
             "org.junit.jupiter:junit-jupiter:5.8.2",
             "org.slf4j:slf4j-simple:1.7.36"
